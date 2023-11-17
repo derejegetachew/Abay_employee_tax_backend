@@ -12,7 +12,6 @@ const loginUser = catchasyncHandler(async (req,res)=>{
     username,
     password,
   });
- console.log(response.data);
    if(response.data.message!="SUCCESS"){
     throw new AppError(`The user have no access please check Your user name and password .`, 401);
    }
