@@ -61,7 +61,6 @@ module.exports = (sequelize, Sequelize) => {
     },  contact_person: {
       type: Sequelize.STRING,
     }, 
-
   },
   {
     sequelize,
