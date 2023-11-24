@@ -2,7 +2,6 @@ const db = require("../model/db");
 const AppError = require("../utils/appError");
 const catchasyncHandler = require("../utils/catchAsync");
 const Branch = db.branches;
-const Op = db.Sequelize.Op;
 const log = require('node-file-logger');
 // Retrieve all Tutorials from the database.
 exports.findAll = catchasyncHandler(async(req, res) => {

@@ -28,5 +28,22 @@ db.sequelize = sequelize;
 // Import and invoke the tutorial model and pass in the sequelize and Sequelize objects
 db.tutorials = require("../model/tutorial.js")(sequelize, Sequelize);
 db.branches = require("../model/branch-model.js")(sequelize, Sequelize);
+db.people=require("../model/people.js")(sequelize, Sequelize);
+db.users=require("../model/users-model.js")(sequelize, Sequelize);
+db.employees=require("../model/employees_model.js")(sequelize, Sequelize);
+db.employee_details=require("../model/employee_details-model.js")(sequelize, Sequelize);
+
+
+// user to people relation ship
+db.users.belongsTo(db.people, { foreignKey: "person_id" });
+db.people.hasOne(db.users, { foreignKey: "person_id"});
+// user to employee relation ship
+db.employees.belongsTo(db.users, { foreignKey: "user_id" });
+db.users.hasOne(db.employees, { foreignKey: "user_id"});
+
+db.employees.hasMany(db.employee_details, {foreignKey: "employee_id"});
+db.employee_details.belongsTo(db.employees, {foreignKey:"employee_id"});
+
+
 // Export the db object
 module.exports = db;

@@ -27,9 +27,6 @@ const loginUser = catchasyncHandler(async (req,res)=>{
   );
   res.status(200).json({accessToken});
 }
-
-  
-
 });
 
 

@@ -21,10 +21,11 @@ const AppError = require("./utils/appError.js");
 const controllerMiddleWare = require('./utils/controllerMiddleWare.js');
 app.use(limiter);
 db.sequelize.sync().then(() => {
-  console.log("resync db."); 
+  //console.log("resync db."); 
     }); 
 //add route 
 app.use("/branch",require("./routes/branchRoutes.js"));
+app.use("/people",require("./routes/peopleRoutes.js"));
 app.use("/api",require("./routes/tutorialRoutes.js"));
 
 app.all('*',(req,res,next)=>{
