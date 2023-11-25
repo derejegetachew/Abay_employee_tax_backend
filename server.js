@@ -23,7 +23,11 @@ app.use(limiter);
 db.sequelize.sync().then(() => {
   //console.log("resync db."); 
     }); 
+    
 //add route 
+app.use("/price",require("./routes/gasPriceRoutes.js"));
+app.use("/allowance",require("./routes/allowanceRoutes.js"));
+
 app.use("/branch",require("./routes/branchRoutes.js"));
 app.use("/people",require("./routes/peopleRoutes.js"));
 app.use("/api",require("./routes/tutorialRoutes.js"));

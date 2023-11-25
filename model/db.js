@@ -32,7 +32,9 @@ db.people=require("../model/people.js")(sequelize, Sequelize);
 db.users=require("../model/users-model.js")(sequelize, Sequelize);
 db.employees=require("../model/employees_model.js")(sequelize, Sequelize);
 db.employee_details=require("../model/employee_details-model.js")(sequelize, Sequelize);
-
+db.gas_prices=require("../model/gas-price-model.js")(sequelize, Sequelize);
+db.grades=require("../model/grades.js")(sequelize, Sequelize);
+db.emp_allowances=require("../model/emp_allowances.js")(sequelize, Sequelize);
 
 // user to people relation ship
 db.users.belongsTo(db.people, { foreignKey: "person_id" });
@@ -40,6 +42,9 @@ db.people.hasOne(db.users, { foreignKey: "person_id"});
 // user to employee relation ship
 db.employees.belongsTo(db.users, { foreignKey: "user_id" });
 db.users.hasOne(db.employees, { foreignKey: "user_id"});
+// allowance to grade  relation ship
+db.emp_allowances.belongsTo(db.grades, { foreignKey: "grade_id" });
+db.grades.hasOne(db.emp_allowances, { foreignKey: "grade_id"});
 
 db.employees.hasMany(db.employee_details, {foreignKey: "employee_id"});
 db.employee_details.belongsTo(db.employees, {foreignKey:"employee_id"});
