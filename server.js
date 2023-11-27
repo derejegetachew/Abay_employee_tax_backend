@@ -3,12 +3,12 @@ const limiter=require("./utils/rateLimit.js");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-//const console = require('./utils/logger').console;
 const log = require('node-file-logger');
 const app = express();
 var corsOptons = {
 	origin: ["http://localhost:3000","http://localhost:8080/"]
 		};
+
 app.use (cors(corsOptons));
 // parse requests of content-type - application/json
 app.use (bodyParser.json());
@@ -23,7 +23,8 @@ app.use(limiter);
 db.sequelize.sync().then(() => {
   //console.log("resync db."); 
     }); 
-    
+  
+   
 //add route 
 app.use("/price",require("./routes/gasPriceRoutes.js"));
 app.use("/allowance",require("./routes/allowanceRoutes.js"));
