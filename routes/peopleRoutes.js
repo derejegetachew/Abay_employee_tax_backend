@@ -7,4 +7,8 @@ var router = require("express").Router();
  router.get("/employeedetails",people.employeedetails);
  router.get("/one", people.specificEmployee);
  router.get("/employee",people.findEmployeeBybranch);
+ router.get("/tax",people.taxRecordList);
+ router.get("/branch/tax",people.getempTaxBybranch);
+ router.post("/tax",people.TaxRecord);
+ router.post("/bulktax",people.BulkTaxRecord);
 module.exports=router;

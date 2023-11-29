@@ -5,6 +5,7 @@ const people = db.people;
 const user = db.users;
 const employee=db.employees;
 const employeeDetail=db.employee_details;
+const tax=db.tax_monthly;
 const Op = db.Sequelize.Op;
 const log = require('node-file-logger');
 const employeeService=require('../service/employee-service');
@@ -17,13 +18,10 @@ exports.employeedetails=catchasyncHandler(async (req, res) =>{
     month,
     year
   );
-  // Return the employee details as a response
-  res.status(200).json({
-    status: 'success',
-    data: employeeDetails,
-  });
-
+  res.send(employeeDetails);
 })
+
+
 exports.findAll = catchasyncHandler(async (req, res) => {
 
   var data = await user.findAll({
@@ -104,4 +102,68 @@ exports.findOne = catchasyncHandler(async(req, res,next) => {
      throw new AppError(`Cannot find pepole with userid=${id}.`, 404);
   }
   res.send(data);
+});
+
+
+// tax 
+
+
+exports.taxRecordList = catchasyncHandler(async(req, res) => {
+  var data =await tax.findAll();
+    res.send(data);
+    log.Info(`data featch on ${process.env.running_environment} server ...`)
+});
+
+exports.getempTaxBybranch = catchasyncHandler(async (req, res) => {
+  var {branch,month}=req.query;
+  var data = await tax.findAll({
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+        where: {
+        month:month, 
+        branch:branch}
+      });
+  res.send(data);
+}
+);
+
+exports.TaxRecord = catchasyncHandler(async(req, res) => {
+  const newemptax = {
+    benefit: req.body.benefit,
+    tin: req.body.tin,
+    month: req.body.month,
+    house: req.body.house,
+    fullName: req.body.fullName,
+    branch: req.body.branch,
+    salary:req.body.salary,
+    transport: req.body.transport,
+    status:req.body.status || "Draft",
+    draftby:req.body.draftby
+  };
+
+  // Save Tutorial in the database
+  const data = await tax.create(newemptax);
+  res.send(data);
+}
+);
+
+exports.BulkTaxRecord = catchasyncHandler(async (req, res) => {
+  const taxRecords = req.body; 
+  const newTaxRecords = taxRecords.map((record) => ({
+    benefit: record.benefit,
+    tin: record.tin,
+    month: record.month,
+    house: record.house,
+    fullName: record.fullName,
+    branch: record.branch,
+    salary: record.salary,
+    transport: record.transport,
+    status: record.status || "Draft",
+    draftby: record.draftby,
+  }));
+
+  // Bulk create the tax records in the database
+  const createdRecords = await tax.bulkCreate(newTaxRecords);
+
+  res.send(createdRecords);
 });
