@@ -3,15 +3,6 @@ module.exports = (sequelize, Sequelize) => {
     price: {
         type: Sequelize.DOUBLE,
             },
-    month: {
-        type: Sequelize.INTEGER, 
-         },
-    year: {
-        type: Sequelize.INTEGER,
-         },
-    yearmonth: {
-        type: Sequelize.STRING,
-            },
     status: {
         type: Sequelize.BOOLEAN, 
       },

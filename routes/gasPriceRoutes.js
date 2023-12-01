@@ -7,4 +7,5 @@ var router = require("express").Router();
  router.get("/byid/:id",gas_price.findOne);
   // Creating a new price
   router.post("/",gas_price.create);
+  router.put("/",gas_price.updatePrice);
 module.exports=router;

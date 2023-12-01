@@ -3,9 +3,11 @@ const AppError = require("../utils/appError");
 const catchasyncHandler = require("../utils/catchAsync");
 const gas_price = db.gas_prices;
 const log = require('node-file-logger');
-// Retrieve all gas_price from the database.
+//Retrieve all gas_price from the database.
 exports.findAll = catchasyncHandler(async(req, res) => {
- var data =await gas_price.findAll();
+  var data = await gas_price.findAll({
+    order: [['createdAt', 'DESC']]
+  });
   res.send(data);
   log.Info(`data featch on ${process.env.running_environment} server ...`)
 });
@@ -57,4 +59,15 @@ exports.create = catchasyncHandler(async(req, res) => {
   );
 
 
-
+  exports.updatePrice=catchasyncHandler(async (req, res) => {
+    const id = req.body.id;
+    const [num] = await gas_price.update(req.body, { where: { id: id }, });
+    if (num === 1) {
+      log.Info(`gas_price with id=${id} was updated successfully.`);
+      res.send({message: "gas_price was updated successfully.",});
+    } 
+    else {
+      log.Info(`Cannot update gas_price with id=${id}.`);
+      throw new AppError(`Cannot update gas_price with id=${id}.!`, 404)
+    }
+  });

@@ -9,7 +9,7 @@ const gas_price = db.gas_prices;
 const Op = db.Sequelize.Op;
 
 class EmployeeService {
-  async findEmployeeByBranch(branch,month,year) {
+  async findEmployeeByBranch(branch) {
     try {
       let data = await employeeDetail.findAll({
         attributes: { exclude: ['createdAt', 'updatedAt'] },
@@ -40,8 +40,6 @@ class EmployeeService {
       const employeeDetailsWithAllowance = await Promise.all(
         data.map(async (employeeDetail) => {
           const allowance = await this.findAllowance(
-            month,
-            year,
             employeeDetail.grade_id
           );
           return { ...employeeDetail.toJSON(), allowance };
@@ -54,7 +52,7 @@ class EmployeeService {
     }
   }
 
-  async findAllowance(month,year,grade) {
+  async findAllowance(grade) {
     try {
       const data = await emp_allowances.findOne({
         attributes: { exclude: ['createdAt', 'updatedAt'] },
@@ -62,8 +60,9 @@ class EmployeeService {
           grade_id:grade,
         }
       });
-      let gasPrice=await this.gasPrice(month,year);
+      let gasPrice=await this.gasPrice();
       data.dataValues.transportAllowance=data.dataValues.transport*gasPrice;
+      data.dataValues.price=gasPrice;
      return data.dataValues;
     } catch (error) {
      let data={
@@ -71,21 +70,21 @@ class EmployeeService {
         house: 0,
         status: false,
         grade_id: 0,
-        transportAllowance:0
+        transportAllowance:0,
+        price:0
       }
       return data;
     }
   }
 
-  async gasPrice(month,year) {
+  async gasPrice() {
     try {
       const data = await gas_price.findOne({
-        attributes: {exclude: ['createdAt', 'updatedAt'] },
+        attributes: { exclude: ['createdAt', 'updatedAt'] },
         where: {
-            month:month,
-            year:year,
-            status: true,
-        }
+          status: true,
+        },
+        order: [['createdAt', 'DESC']],
       });
      return data.dataValues.price;
     } catch (error) {
