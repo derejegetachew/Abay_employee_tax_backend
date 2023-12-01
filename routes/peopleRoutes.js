@@ -9,6 +9,10 @@ var router = require("express").Router();
  router.get("/employee",people.findEmployeeBybranch);
  router.get("/tax",people.taxRecordList);
  router.get("/branch/tax",people.getempTaxBybranch);
+ router.get("/month/tax",people.getempTaxByMonth);
+ router.get("/check/record",people.getNumberOfBranchTaxRecord);
+ router.get("/month",people.getUniqueMonth);
  router.post("/tax",people.TaxRecord);
  router.post("/bulktax",people.BulkTaxRecord);
+
 module.exports=router;

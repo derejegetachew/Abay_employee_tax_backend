@@ -6,7 +6,7 @@ const cors = require("cors");
 const log = require('node-file-logger');
 const app = express();
 var corsOptons = {
-	origin: ["http://localhost:3000","http://localhost:8080/"]
+	origin: ["http://localhost:3000","http://localhost:8080/","http://10.1.50.152:3000"]
 		};
 
 app.use (cors(corsOptons));

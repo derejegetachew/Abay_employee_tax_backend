@@ -105,14 +105,22 @@ exports.findOne = catchasyncHandler(async(req, res,next) => {
 });
 
 
-// tax 
-
-
+// tax-monthly 
 exports.taxRecordList = catchasyncHandler(async(req, res) => {
   var data =await tax.findAll();
     res.send(data);
     log.Info(`data featch on ${process.env.running_environment} server ...`)
 });
+
+exports.getUniqueMonth = catchasyncHandler(async (req, res) => {
+  const data = await tax.findAll({
+    attributes: ['month'],
+    group: ['month'],
+  });
+  res.send(data);
+  log.info(`Data fetched on ${process.env.running_environment} server...`);
+});
+
 
 exports.getempTaxBybranch = catchasyncHandler(async (req, res) => {
   var {branch,month}=req.query;
@@ -126,6 +134,32 @@ exports.getempTaxBybranch = catchasyncHandler(async (req, res) => {
   res.send(data);
 }
 );
+
+exports.getempTaxByMonth = catchasyncHandler(async (req, res) => {
+  var {month}=req.query;
+  var data = await tax.findAll({
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+        where: {
+        month:month}
+      });
+  res.send(data);
+}
+);
+
+exports.getNumberOfBranchTaxRecord=catchasyncHandler(async (req, res) => {
+  const { branch, month } = req.query;
+  const data = await tax.findAll({
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+    where: {
+      month: month,
+      branch: branch
+    }
+  });
+
+  const dataLength = data.length || 0;
+  res.send(dataLength.toString());
+});
 
 exports.TaxRecord = catchasyncHandler(async(req, res) => {
   const newemptax = {
@@ -141,7 +175,6 @@ exports.TaxRecord = catchasyncHandler(async(req, res) => {
     draftby:req.body.draftby
   };
 
-  // Save Tutorial in the database
   const data = await tax.create(newemptax);
   res.send(data);
 }
@@ -162,8 +195,6 @@ exports.BulkTaxRecord = catchasyncHandler(async (req, res) => {
     draftby: record.draftby,
   }));
 
-  // Bulk create the tax records in the database
   const createdRecords = await tax.bulkCreate(newTaxRecords);
-
   res.send(createdRecords);
 });
