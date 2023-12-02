@@ -12,7 +12,12 @@ var router = require("express").Router();
  router.get("/month/tax",people.getempTaxByMonth);
  router.get("/check/record",people.getNumberOfBranchTaxRecord);
  router.get("/month",people.getUniqueMonth);
+ router.get("/taxrecord/status",people.getEmpTaxStatusByMonth);
+ router.get("/taxrecord/branch/status",people.getEmpTaxStatusByBranchMonth);
+ router.get("/gettax/branch/submited",people.getBranchSubmitedTaxRecord);
  router.post("/tax",people.TaxRecord);
  router.post("/bulktax",people.BulkTaxRecord);
+ router.put("/updatetax",people.updateTaxData);
+ router.put("/bulktaxupdate",people.updateBulkTaxData);
 
 module.exports=router;

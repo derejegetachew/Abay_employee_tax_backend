@@ -9,8 +9,10 @@ const tax=db.tax_monthly;
 const Op = db.Sequelize.Op;
 const log = require('node-file-logger');
 const employeeService=require('../service/employee-service');
+const TaxService=require('../service/taxservice');
 // Retrieve all Tutorials from the database.
 const empai=new employeeService();
+const taxapi=new TaxService();
 exports.employeedetails=catchasyncHandler(async (req, res) =>{
   const { branch, month, year } = req.query;
   const employeeDetails = await empai.findEmployeeByBranch(
@@ -147,6 +149,38 @@ exports.getempTaxByMonth = catchasyncHandler(async (req, res) => {
 }
 );
 
+exports.getEmpTaxStatusByMonth = catchasyncHandler(async (req, res) => {
+  var {month,status}=req.query;
+  var data = await tax.findAll({
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+        where: {
+        month:month,
+        status:status}
+      });
+  res.send(data);
+}
+);
+
+exports.getEmpTaxStatusByBranchMonth = catchasyncHandler(async (req, res) => {
+  var {month,status,branch}=req.query;
+  var data = await tax.findAll({
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+        where: {
+        month:month,
+        status:status,
+        branch: branch}
+      });
+  res.send(data);
+}
+);
+
+exports.getBranchSubmitedTaxRecord=catchasyncHandler(async (req, res) =>{
+  const {month} = req.query;
+  const branch = await taxapi.findSubmittedBranches(month );
+  res.send(branch);
+})
 exports.getNumberOfBranchTaxRecord=catchasyncHandler(async (req, res) => {
   const { branch, month } = req.query;
   const data = await tax.findAll({
@@ -160,6 +194,7 @@ exports.getNumberOfBranchTaxRecord=catchasyncHandler(async (req, res) => {
   const dataLength = data.length || 0;
   res.send(dataLength.toString());
 });
+
 
 exports.TaxRecord = catchasyncHandler(async(req, res) => {
   const newemptax = {
@@ -198,3 +233,33 @@ exports.BulkTaxRecord = catchasyncHandler(async (req, res) => {
   const createdRecords = await tax.bulkCreate(newTaxRecords);
   res.send(createdRecords);
 });
+
+
+exports.updateTaxData=catchasyncHandler(async (req, res) => {
+  const id = req.body.id;
+  const [num] = await tax.update(req.body, { where: { id: id }, });
+  if (num === 1) {
+    log.Info(`Tax Record with id=${id} was updated successfully.`);
+    res.send({message: "Tax Record was updated successfully.",});
+  } 
+  else {
+    log.Info(`Cannot update Tax Record with id=${id}.`);
+    throw new AppError(`Cannot update Tax Record with id=${id}.!`, 404)
+  }
+});
+
+
+exports.updateBulkTaxData = catchasyncHandler(async (req, res) => {
+  const taxRecords = req.body;
+  const ids = taxRecords.map((record) => record.id);
+  const statusToUpdate = req.body[0].status;
+  const [num] = await tax.update({status:statusToUpdate}, { where: { id: ids } });
+  if (num > 0) {
+    log.Info(`${num} Tax Records were updated successfully.`);
+    res.send({ message: `${num} Tax Records were updated successfully.` });
+  } else {
+    log.Info(`No Tax Records were updated.`);
+    throw new AppError(`No Tax Records were updated.`, 404);
+  }
+});
+
