@@ -3,7 +3,7 @@ module.exports = (sequelize, Sequelize) => {
     transport: {
          type: Sequelize.DOUBLE,
          },
-    house: {
+     house: {
         type: Sequelize.DOUBLE,
             },
     from: {

@@ -6,11 +6,20 @@ module.exports = (sequelize, Sequelize) => {
     tin: {
         type: Sequelize.STRING,
          },
+    grade_id:{
+       type: Sequelize.STRING,
+     },
+    step_id:{
+        type: Sequelize.STRING,
+         },
     transport: {
          type: Sequelize.DOUBLE,
          },
     house: {
         type: Sequelize.DOUBLE,
+            },
+    gas_price: {
+            type: Sequelize.DOUBLE,
             },
     salary: {
                 type: Sequelize.DOUBLE,

@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const log = require('node-file-logger');
+
 const app = express();
 var corsOptons = {
 	origin: ["http://localhost:3000","http://localhost:8080/","http://10.1.50.152:3000"]
@@ -14,7 +15,6 @@ app.use (cors(corsOptons));
 app.use (bodyParser.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use (bodyParser.urlencoded({extended:true}));
-
 // import the db
 const db = require("./model/db.js");
 const AppError = require("./utils/appError.js");

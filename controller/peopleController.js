@@ -108,6 +108,20 @@ exports.findOne = catchasyncHandler(async(req, res,next) => {
 
 
 // tax-monthly 
+
+exports.gettaxRecordPermonth = catchasyncHandler(async(req, res) => {
+  const {month} = req.query;
+  const data = await taxapi.getTaxInfoPermonth(month );
+  res.send(data);
+});
+
+
+exports.gettaxRecordByBranchPermonth = catchasyncHandler(async(req, res) => {
+  const {month,branch} = req.query;
+  const data = await taxapi.getTaxInfoByBranchPermonth(month,branch);
+  res.send(data);
+});
+
 exports.taxRecordList = catchasyncHandler(async(req, res) => {
   var data =await tax.findAll();
     res.send(data);
@@ -226,6 +240,9 @@ exports.BulkTaxRecord = catchasyncHandler(async (req, res) => {
     branch: record.branch,
     salary: record.salary,
     transport: record.transport,
+    gas_price:record.gas_price,
+    step_id:record.step_id,
+    grade_id:record.grade_id,
     status: record.status || "Draft",
     draftby: record.draftby,
   }));

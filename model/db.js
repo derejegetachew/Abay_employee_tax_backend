@@ -36,6 +36,7 @@ db.gas_prices=require("../model/gas-price-model.js")(sequelize, Sequelize);
 db.grades=require("../model/grades.js")(sequelize, Sequelize);
 db.emp_allowances=require("../model/emp_allowances.js")(sequelize, Sequelize);
 db.tax_monthly=require("../model/tax-model.js")(sequelize, Sequelize);
+db.scales=require("../model/scales.js")(sequelize, Sequelize);
 // user to people relation ship
 db.users.belongsTo(db.people, { foreignKey: "person_id" });
 db.people.hasOne(db.users, { foreignKey: "person_id"});
