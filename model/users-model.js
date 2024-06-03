@@ -12,6 +12,9 @@ module.exports = (sequelize, Sequelize) => {
     is_active: {
         type: Sequelize.STRING,
       },
+    },
+    {
+      timestamps: false 
     });
     return  User;
   };

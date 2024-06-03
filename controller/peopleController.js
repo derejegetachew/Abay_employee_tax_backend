@@ -280,3 +280,16 @@ exports.updateBulkTaxData = catchasyncHandler(async (req, res) => {
   }
 });
 
+//update tin number 
+exports.updateUserTin = catchasyncHandler(async (req, res) => {
+  const id = req.body.id;
+  const { tin_number } = req.body; 
+  const [num] = await user.update({ tin_number }, { where: { id: id } });
+  if (num === 1) {
+    log.Info(`User with id=${id} tin number was updated successfully.`);
+    res.send({ message: "User tin number was updated successfully." });
+  } else {
+    log.Info(`Cannot update user with id=${id}.`);
+    throw new AppError(`Cannot update user tin with id=${id}!`, 404);
+  }
+});

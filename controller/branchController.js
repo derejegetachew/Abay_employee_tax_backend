@@ -6,7 +6,11 @@ const log = require('node-file-logger');
 // Retrieve all Tutorials from the database.
 exports.findAll = catchasyncHandler(async(req, res) => {
  var data =await Branch.findAll({attributes: { exclude: ['createdAt', 'updatedAt'] } });
-  res.send(data);
+ const filteredData = data.map(item => ({
+  id: item.id,
+  name: item.name
+}));
+ res.send(filteredData);
   log.Info(`data featch on ${process.env.running_environment} server ...`)
 });
 

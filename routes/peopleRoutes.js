@@ -21,5 +21,5 @@ var router = require("express").Router();
  router.post("/bulktax",people.BulkTaxRecord);
  router.put("/updatetax",people.updateTaxData);
  router.put("/bulktaxupdate",people.updateBulkTaxData);
-
+ router.put("/tin",people.updateUserTin);
 module.exports=router;
