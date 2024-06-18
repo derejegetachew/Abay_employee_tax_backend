@@ -1,52 +1,54 @@
 const db = require("../model/db");
 const AppError = require("../utils/appError");
-const EmployeeService=require('./employee-service');
+const EmployeeService = require('./employee-service');
+const { calculateTax, calculateTotalIncome } = require("../utils/calculat-Tax");
+
 const tax = db.tax_monthly;
 const get_branch = db.branches;
 const gas_price = db.gas_prices;
-const Op = db.Sequelize.Op;
-class TaxService {
-   employeeService=new EmployeeService();
-  
-    async findSubmittedBranches(month) {
-        try {
-          const branchIds = await tax.findAll({
-            attributes: ['branch'],
-            where: {
-              month: month,
-              status: 'Submitted'
-            },
-            group: ['branch']
-          });
-      
-          const branchData = await Promise.all(
-            branchIds.map(async (branchId) => {
-              const branch = await this.getBranchDataById(branchId.branch);
-              return {
-                branchId: branchId.branch,
-                branchName: branch ? branch.name : null
-              };
-            })
-          );
-      
-          return branchData;
-        } catch (error) {
-          throw new AppError('Error occurred while fetching submitted branches.', 500);
-        }
-      }
 
+class TaxService {
+  constructor() {
+    this.employeeService = new EmployeeService();
+  }
+
+  async findSubmittedBranches(month) {
+    try {
+      const branchIds = await tax.findAll({
+        attributes: ['branch'],
+        where: {
+          month: month,
+          status: 'Submitted'
+        },
+        group: ['branch']
+      });
+
+      const branchData = await Promise.all(
+        branchIds.map(async (branchId) => {
+          const branch = await this.getBranchDataById(branchId.branch);
+          return {
+            branchId: branchId.branch,
+            branchName: branch ? branch.name : null
+          };
+        })
+      );
+
+      return branchData;
+    } catch (error) {
+      throw new AppError('Error occurred while fetching submitted branches.', 500);
+    }
+  }
 
   async getBranchDataById(id) {
     try {
       const data = await get_branch.findByPk(id, {
         attributes: { exclude: ['createdAt', 'updatedAt'] }
       });
-     return data;
+      return data;
     } catch (error) {
-        throw new AppError('Error occurred while fetching  branches.', 500);
+      throw new AppError('Error occurred while fetching branches.', 500);
     }
   }
-
 
   async getTaxInfoPermonth(month) {
     try {
@@ -56,51 +58,69 @@ class TaxService {
           status: 'Submitted'
         },
       });
-        const taxPayWithSum = taxPay.map(taxRecord => {
-        const totalSum = taxRecord.transport + taxRecord.house + taxRecord.salary + taxRecord.benefit;
-        const totalTax=this.calculateTax(totalSum);
-        const netPay=totalSum-totalTax;
+
+      const taxPayWithSum = taxPay.map(taxRecord => {
+        const totalSum = calculateTotalIncome(
+          taxRecord.salary,
+          taxRecord.house,
+          taxRecord.transport,
+          taxRecord.benefit
+        );
+        const totalTax = calculateTax(totalSum);
+        const netPay = totalSum - totalTax;
+
         return {
           ...taxRecord.toJSON(),
           totalSum: totalSum,
-          totalTax:totalTax,
-          netPay:netPay
+          totalTax: totalTax,
+          netPay: netPay
         };
       });
-  
+
       return taxPayWithSum;
     } catch (error) {
-      throw new AppError('Error occurred while fetching submitted branches.', 500);
+      throw new AppError('Error occurred while fetching tax information.', 500);
     }
   }
 
-  async getTaxInfoByBranchPermonth(month,branch) {
+  async getTaxInfoByBranchPermonth(month, branch = null) {
     try {
-      let gasPrice=await this.gasPrice();
+      const whereCondition = {
+        month: month,
+        status: 'Submitted'
+      };
+
+      if (branch) {
+        whereCondition.branch = branch;
+      }
+
       const taxPay = await tax.findAll({
-        where: {
-          month: month,
-          branch:branch,
-          status: 'Submitted'
-        },
+        where: whereCondition
       });
-        const taxPayWithSum = taxPay.map(taxRecord => {
-        const totalSum = (taxRecord.transport*gasPrice) + taxRecord.house + taxRecord.salary + taxRecord.benefit;
-        const totalTax=this.calculateTax(totalSum);
-        const netPay=totalSum-totalTax;
+
+      const taxPayWithSum = taxPay.map(taxRecord => {
+        const totalSum = calculateTotalIncome(
+          taxRecord.salary,
+          taxRecord.house,
+          taxRecord.transport,
+          taxRecord.benefit
+        );
+        const totalTax = calculateTax(totalSum);
+        const netPay = totalSum - totalTax;
+
         return {
           ...taxRecord.toJSON(),
           totalSum: totalSum,
-          totalTax:totalTax,
-          netPay:netPay
+          totalTax: totalTax,
+          netPay: netPay
         };
       });
+
       return taxPayWithSum;
     } catch (error) {
-      throw new AppError('Error occurred while fetching submitted branches.', 500);
+      throw new AppError('Error occurred while fetching tax information.', 500);
     }
   }
-
 
   async gasPrice() {
     try {
@@ -111,42 +131,12 @@ class TaxService {
         },
         order: [['createdAt', 'DESC']],
       });
-     return data.dataValues.price;
+
+      return data ? data.price : 0;
     } catch (error) {
       return 0;
     }
   }
-
-  calculateTax=(income)=> {
-    let taxRate;
-    let taxAmount;
-    switch (true) {
-      case income <= 600:
-        taxRate = 0;
-        break;
-      case income <= 1650:
-        taxRate = 0.1;
-        break;
-      case income <= 3200:
-        taxRate = 0.15;
-        break;
-      case income <= 5250:
-        taxRate = 0.20;
-        break;
-      case income <= 7800:
-        taxRate = 0.25;
-        break;
-      case income <= 10900:
-        taxRate = 0.30;
-        break;
-      default:
-        taxRate = 0.35;
-    }
-    
-    taxAmount = income * taxRate;
-    return taxAmount;
-  }
-
 }
 
 module.exports = TaxService;

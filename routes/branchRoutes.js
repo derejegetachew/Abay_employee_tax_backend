@@ -4,5 +4,7 @@
     var router = require("express").Router();
      // Creating a new Tutorial
      router.get("/",branch.findAll);
+     router.get("/addis/region",branch.findByRegion);
      router.get("/:id",branch.findOne);
+
     module.exports=router;

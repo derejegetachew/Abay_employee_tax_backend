@@ -1,6 +1,7 @@
 const db = require("../model/db");
 const AppError = require("../utils/appError");
 const catchasyncHandler = require("../utils/catchAsync");
+const { calculateTax, calculateTotalIncome } = require("../utils/calculat-Tax");
 const people = db.people;
 const user = db.users;
 const employee=db.employees;
@@ -78,8 +79,6 @@ exports.findEmployeeBybranch = catchasyncHandler(async (req, res) => {
   res.send(data);
   log.Info(`Data fetched on ${process.env.running_environment} server ...`);
 });
-
-
 exports.specificEmployee =catchasyncHandler(async (req, res, next) => {
   const { name } = req.query;
   const data = await people.findOne({
@@ -92,7 +91,6 @@ exports.specificEmployee =catchasyncHandler(async (req, res, next) => {
   }
   res.send(data);
 });
-
 // Find a single Branch with an id
 exports.findOne = catchasyncHandler(async(req, res,next) => {
   const id = req.params.id;
@@ -115,19 +113,16 @@ exports.gettaxRecordPermonth = catchasyncHandler(async(req, res) => {
   res.send(data);
 });
 
-
 exports.gettaxRecordByBranchPermonth = catchasyncHandler(async(req, res) => {
   const {month,branch} = req.query;
   const data = await taxapi.getTaxInfoByBranchPermonth(month,branch);
   res.send(data);
 });
-
 exports.taxRecordList = catchasyncHandler(async(req, res) => {
   var data =await tax.findAll();
     res.send(data);
     log.Info(`data featch on ${process.env.running_environment} server ...`)
 });
-
 exports.getUniqueMonth = catchasyncHandler(async (req, res) => {
   const data = await tax.findAll({
     attributes: ['month'],
@@ -137,16 +132,24 @@ exports.getUniqueMonth = catchasyncHandler(async (req, res) => {
   log.info(`Data fetched on ${process.env.running_environment} server...`);
 });
 
-
 exports.getempTaxBybranch = catchasyncHandler(async (req, res) => {
   var {branch,month}=req.query;
+
+  const whereCondition = {
+    month
+  };
+
+  if (branch) {
+    whereCondition.branch = branch;
+  }
+
   var data = await tax.findAll({
     attributes: { exclude: ['createdAt', 'updatedAt'] },
     attributes: { exclude: ['createdAt', 'updatedAt'] },
-        where: {
-        month:month, 
-        branch:branch}
+        where: whereCondition
       });
+      
+      
   res.send(data);
 }
 );
@@ -186,7 +189,25 @@ exports.getEmpTaxStatusByBranchMonth = catchasyncHandler(async (req, res) => {
         status:status,
         branch: branch}
       });
-  res.send(data);
+      
+      const dataWithtax = data.map(employee => {
+        const totalSum = calculateTotalIncome(
+          employee.salary,
+          employee.house,
+          employee.transport,
+          employee.benefit
+        );
+        const totalTax = calculateTax(totalSum);
+        const netPay = totalSum - totalTax;
+
+        return {
+          ...employee.toJSON(),
+          totalSum: totalSum,
+          totalTax: totalTax,
+          netPay: netPay
+        };
+      });
+  res.send(dataWithtax);
 }
 );
 
@@ -234,7 +255,6 @@ exports.BulkTaxRecord = catchasyncHandler(async (req, res) => {
   const newTaxRecords = taxRecords.map((record) => ({
     benefit: record.benefit,
     tin: record.tin,
-    month: record.month,
     house: record.house,
     fullName: record.fullName,
     branch: record.branch,
