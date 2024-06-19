@@ -23,14 +23,13 @@ exports.employeedetails=catchasyncHandler(async (req, res) =>{
   );
   res.send(employeeDetails);
 })
-
-
 exports.findAll = catchasyncHandler(async (req, res) => {
 
   var data = await user.findAll({
     attributes: { exclude: ['createdAt', 'updatedAt'] },
     include: [
       {
+        
         model: people,
         attributes: { exclude: ['createdAt', 'updatedAt'] },
       },
@@ -49,7 +48,6 @@ exports.findAll = catchasyncHandler(async (req, res) => {
   res.send(data);
   log.Info(`Data fetched on ${process.env.running_environment} server ...`);
 });
-
 exports.findEmployeeBybranch = catchasyncHandler(async (req, res) => {
   var {branch}=req.query || 115;
   var data = await employeeDetail.findAll({
@@ -148,8 +146,7 @@ exports.getempTaxBybranch = catchasyncHandler(async (req, res) => {
     attributes: { exclude: ['createdAt', 'updatedAt'] },
         where: whereCondition
       });
-      
-      
+  
   res.send(data);
 }
 );
@@ -244,7 +241,6 @@ exports.TaxRecord = catchasyncHandler(async(req, res) => {
     status:req.body.status || "Draft",
     draftby:req.body.draftby
   };
-
   const data = await tax.create(newemptax);
   res.send(data);
 }
@@ -256,6 +252,7 @@ exports.BulkTaxRecord = catchasyncHandler(async (req, res) => {
     benefit: record.benefit,
     tin: record.tin,
     house: record.house,
+    month: record.month,
     fullName: record.fullName,
     branch: record.branch,
     salary: record.salary,
