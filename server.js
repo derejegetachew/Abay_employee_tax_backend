@@ -20,7 +20,7 @@ const db = require("./model/db.js");
 const AppError = require("./utils/appError.js");
 const controllerMiddleWare = require('./utils/controllerMiddleWare.js');
 app.use(limiter);
-db.sequelize.sync().then(() => {
+db.sequelize.sync({alter: false}).then(() => {
   //console.log("resync db."); 
     }); 
   
