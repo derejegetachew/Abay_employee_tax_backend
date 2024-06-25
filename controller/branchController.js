@@ -70,21 +70,49 @@ exports.findByRegion = catchAsyncHandler(async (req, res, next) => {
     const region = 'Addis Ababa (city)'; // The region to filter branches by
     const branches = await Branch.findAll({
         where: { working_region: region },
-        
-        attributes: { exclude: ['createdAt', 'updatedAt'] } ,
+        attributes: { exclude: ['createdAt', 'updatedAt'] },
         order: [['name', 'ASC']]
-        // Exclude certain attributes
     });
 
-   const filteredData = branches.map(item => ({
+    const filteredData = branches.map(item => ({
         id: item.id,
-        name: item.name
+        name: item.name,
+        fc_code: item.fc_code 
     }));
-    res.send(filteredData);// Send the branches data to the client
+
+    res.send(filteredData); // Send the branches data to the client
+
     log.Info(`Branches in ${region} fetched successfully.`); // Log successful fetch
 });
 
 
 
-
+// Define the API function
+exports.getFcCodeByBranchId = catchAsyncHandler(async (req, res) => {
+    const { branch_id } = req.query; // Extract branch_id from query parameters
+  
+    try {
+      // Validate that branch_id is provided
+      if (!branch_id) {
+        return res.status(400).json({ error: 'branch_id parameter is required' });
+      }
+    // Fetch fc_code from the branch table using branch_id
+      const branch = await Branch.findOne({
+        where: { id: branch_id }, // Replace 'id' with your actual branch ID column name
+        attributes: ['fc_code']
+      });
+  
+      // Check if branchData and fc_code exist
+      if (!branch || !branch.fc_code) {
+        return res.status(404).json({ error: 'Branch or fc_code not found' });
+      }
+  
+      // Send the fc_code as the response
+      res.status(200).json({ fc_code: branch.fc_code });
+    } catch (error) {
+      console.error('Error fetching fc_code:', error);
+      res.status(500).json({ error: 'An error occurred while fetching fc_code' });
+    }
+  });
+  
 

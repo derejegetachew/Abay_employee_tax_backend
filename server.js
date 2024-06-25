@@ -20,11 +20,10 @@ const db = require("./model/db.js");
 const AppError = require("./utils/appError.js");
 const controllerMiddleWare = require('./utils/controllerMiddleWare.js');
 app.use(limiter);
-db.sequelize.sync({alter: false}).then(() => {
+db.sequelize.sync().then(() => {
   //console.log("resync db."); 
     }); 
   
-   
 //add route 
 app.use("/price",require("./routes/gasPriceRoutes.js"));
 app.use("/allowance",require("./routes/allowanceRoutes.js"));

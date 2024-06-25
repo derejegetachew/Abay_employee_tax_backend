@@ -3,6 +3,7 @@ const AppError = require("../utils/appError");
 const catchasyncHandler = require("../utils/catchAsync");
 const { calculateTax, calculateTotalIncome } = require("../utils/calculat-Tax");
 const people = db.people;
+const Branch = db.branches
 const user = db.users;
 const employee=db.employees;
 const employeeDetail=db.employee_details;
@@ -102,7 +103,6 @@ exports.findOne = catchasyncHandler(async(req, res,next) => {
   res.send(data);
 });
 
-
 // tax-monthly 
 
 exports.gettaxRecordPermonth = catchasyncHandler(async(req, res) => {
@@ -162,7 +162,6 @@ exports.getempTaxByMonth = catchasyncHandler(async (req, res) => {
   res.send(data);
 }
 );
-
 exports.getEmpTaxStatusByMonth = catchasyncHandler(async (req, res) => {
   var {month,status}=req.query;
   var data = await tax.findAll({
@@ -175,7 +174,6 @@ exports.getEmpTaxStatusByMonth = catchasyncHandler(async (req, res) => {
   res.send(data);
 }
 );
-
 exports.getEmpTaxStatusByBranchMonth = catchasyncHandler(async (req, res) => {
   var {month,status,branch}=req.query;
   var data = await tax.findAll({
